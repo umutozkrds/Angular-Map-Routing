@@ -1,5 +1,5 @@
 {
-  "name": "map-routing",
+  "name": "map",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:map-routing": "node dist/map-routing/server/server.mjs"
+    "serve:ssr:map": "node dist/map/server/server.mjs"
   },
   "private": true,
   "dependencies": {

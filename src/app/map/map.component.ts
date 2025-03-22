@@ -1,12 +1,12 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
-import * as L from 'leaflet';
+
 @Component({
   selector: 'app-map',
-  imports: [],
+  standalone: false,
   templateUrl: './map.component.html',
   styleUrl: './map.component.css'
 })
-export class MapComponent implements OnInit,AfterViewInit{
+export class MapComponent implements OnInit,AfterViewInit {
   private map!: L.Map;
 
 
@@ -17,14 +17,14 @@ export class MapComponent implements OnInit,AfterViewInit{
   async ngAfterViewInit() {
     if (typeof window !== 'undefined') {
 
-      
+
 
       const L = await import('leaflet');
       const map = L.map('map').setView([41.0082, 28.9784], 13);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors'
       }).addTo(map);
-     
+
       map.on('click', mapClick)
 
       let value = 1
@@ -33,7 +33,7 @@ export class MapComponent implements OnInit,AfterViewInit{
           var marker = L.marker(e.latlng, { icon: customIcon }).addTo(map)
           value++
         }
-        
+
       }
       const customIcon = L.icon({
       iconUrl: 'https://cdn-icons-png.flaticon.com/128/684/684908.png', // Özel bir ikon URL'si
@@ -43,14 +43,7 @@ export class MapComponent implements OnInit,AfterViewInit{
       });
 
 
-      
+
     }
   }
-  
-
 }
-
-/*L.marker([41.0082, 28.9784], { icon: customIcon })
-        .addTo(map)
-        .bindPopup('Burası İstanbul!')
-        .openPopup() */
