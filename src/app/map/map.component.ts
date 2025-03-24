@@ -2,6 +2,7 @@ import { AfterViewInit, Component, OnInit, PLATFORM_ID, Inject } from '@angular/
 import { isPlatformBrowser } from '@angular/common';
 import { RouteService } from '../services/route.service';
 import * as polyline from '@mapbox/polyline';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-map',
