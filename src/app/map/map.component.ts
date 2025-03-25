@@ -15,6 +15,7 @@ export class MapComponent implements OnInit {
   private routeLayer: any;
   private customIcon: any;
   markers: any[] = [];
+  private value = 1;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -24,8 +25,6 @@ export class MapComponent implements OnInit {
   async ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
       await this.initializeMap();
-      this.createLocation(this.markers);
-      console.log("Markers", this.markers);
     }
   }
 
@@ -45,10 +44,13 @@ export class MapComponent implements OnInit {
     });
 
     this.map.on('click', (e: any) => {
-      console.log(e);
-      console.log(this.markers);
-      this.addMarker(e.latlng, 'Custom Marker');
-      this.createLocation(this.markers);
+      if (this.value <= 2) {
+        const label = this.value === 1 ? 'Start' : 'End';
+        this.addMarker(e.latlng, label);
+        if (this.markers.length === 2) {
+          this.createRoute();
+        }
+      }
     });
   }
 
@@ -58,12 +60,6 @@ export class MapComponent implements OnInit {
         if (res.routes?.[0]?.polyline?.encodedPolyline) {
           const route = res.routes[0];
           this.drawRoute(route.polyline.encodedPolyline);
-
-          if (route.legs?.[0]) {
-            const leg = route.legs[0];
-            this.addMarker(leg.start_location, 'Start');
-            this.addMarker(leg.end_location, 'End');
-          }
         }
       },
       error: (error) => console.error('Error fetching route:', error)
@@ -92,45 +88,35 @@ export class MapComponent implements OnInit {
       console.error('Error drawing route:', error);
     }
   }
-  private value = 1;
+
   private addMarker(location: any, label: string) {
-    if (this.value <= 4) {
-      let latLng;
+    let latLng;
 
-      if (location instanceof this.L.LatLng) {
-        // Handle click events
-        latLng = location;
-      } else if (location?.lat && location?.lng) {
-        // Handle route endpoints
-        latLng = this.L.latLng(location.lat, location.lng);
-      }
+    if (location instanceof this.L.LatLng) {
+      latLng = location;
+    } else if (location?.lat && location?.lng) {
+      latLng = this.L.latLng(location.lat, location.lng);
+    }
 
-      if (latLng) {
-        const marker = this.L.marker(latLng, {
-          icon: this.customIcon
-        })
-          .bindPopup(label)
-          .addTo(this.map);
+    if (latLng) {
+      const marker = this.L.marker(latLng, {
+        icon: this.customIcon
+      })
+        .bindPopup(label)
+        .addTo(this.map);
 
-        this.markers.push(marker);
-        this.value++;
-      }
+      this.markers.push(marker);
+      this.value++;
     }
   }
 
-  private createLocation(markers: any[]) {
-    const locations = markers.map((marker) => {
-      return {
-        lat: marker.getLatLng().lat,
-        lng: marker.getLatLng().lng
-      }
-    })
-    const start = locations[0].lat + "," + locations[0].lng;
-    const end = locations[1].lat + "," + locations[1].lng;
-    console.log("Locations", locations);
-    if (locations.length == 2) {
-      this.fetchRoute(start, end);
-    }
+  private createRoute() {
+    const locations = this.markers.map((marker) => {
+      const latLng = marker.getLatLng();
+      return `${latLng.lat},${latLng.lng}`;
+    });
+
+    this.fetchRoute(locations[0], locations[1]);
   }
 
   clearMarkers() {
