@@ -53,14 +53,21 @@
 
         <div class="route-info">
             <h3>Route Information</h3>
-            <div class="info-group">
-                <div class="info-item">
-                    <span class="label">Distance:</span>
-                    <span class="value">{{ infos[0].distanceMeters | number:'1.0-0' }} meters</span>
+            <div *ngFor="let info of infos; let i = index" class="route-card">
+                <div class="route-header">
+                    <div class="route-number">Route {{i + 1}}</div>
+                    <div class="route-indicator"
+                        [style.background-color]="i === 0 ? '#6FA1EC' : i === 1 ? '#FF6B6B' : '#4CAF50'"></div>
                 </div>
-                <div class="info-item">
-                    <span class="label">Duration:</span>
-                    <span class="value">{{ infos[0].duration }} minutes</span>
+                <div class="info-group">
+                    <div class="info-item">
+                        <div class="info-label">Distance</div>
+                        <div class="info-value">{{(info.distanceMeters / 1000) | number:'1.1-1'}} km</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Duration</div>
+                        <div class="info-value">{{info.duration}}</div>
+                    </div>
                 </div>
             </div>
         </div>

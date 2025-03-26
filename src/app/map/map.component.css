@@ -85,8 +85,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  margin-bottom: 6px;
 }
 
 .info-item:last-child {
@@ -95,13 +97,13 @@
 
 .info-item .label {
   color: #666;
-  font-size: 14px;
+  font-size: 10px;
 }
 
 .info-item .value {
   color: #333;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 10px;
 }
 
 button {
@@ -119,4 +121,73 @@ button {
 
 button:hover {
   background-color: #0056b3;
+}
+
+.route-info {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.route-card {
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.route-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.route-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.route-number {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2c3e50;
+  letter-spacing: 0.2px;
+}
+
+.route-indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.info-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.info-label {
+  color: #6c757d;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+
+.info-value {
+  color: #2c3e50;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.route-info h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 16px;
+  letter-spacing: 0.3px;
 }
