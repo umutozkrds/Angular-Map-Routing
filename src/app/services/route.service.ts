@@ -5,6 +5,16 @@ import { catchError, tap } from 'rxjs/operators';
 import { throwError } from 'rxjs';
 import { RouteOptions } from '../interfaces/route-options.interface';
 
+interface RouteResponse {
+    routes: Array<{
+        duration: string;
+        distanceMeters: number;
+        polyline: {
+            encodedPolyline: string;
+        };
+    }>;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -40,9 +50,16 @@ export class RouteService {
             ...options
         };
 
-        return this.http.post(`${environment.apiUrl}/api/route`, requestBody, { headers: this.headers })
+        console.log('Sending request:', requestBody); // Debug log
+
+        return this.http.post<RouteResponse>(`${environment.apiUrl}/api/route`, requestBody, { headers: this.headers })
             .pipe(
-                tap(response => console.log('Route API Response:', response)),
+                tap(response => {
+                    console.log('Route API Response:', response);
+                    if (!response || !response.routes) {
+                        console.error('Invalid response structure:', response);
+                    }
+                }),
                 catchError(this.handleError)
             );
     }

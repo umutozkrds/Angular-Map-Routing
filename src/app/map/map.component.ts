@@ -20,7 +20,6 @@ export class MapComponent implements OnInit {
 
   // Route options
   routeOptions: RouteOptions = {
-    travelMode: 'DRIVE',
     routingPreference: 'TRAFFIC_AWARE',
     computeAlternativeRoutes: false,
     routeModifiers: {
@@ -72,22 +71,12 @@ export class MapComponent implements OnInit {
   private fetchRoute(start: string, end: string) {
     this.routeService.getRoute(start, end, this.routeOptions).subscribe({
       next: (res: any) => {
-        if (res.routes) {
+        if (res.routes && res.routes.length > 0) {
           this.drawRoutes(res.routes);
         }
       },
       error: (error) => console.error('Error fetching route:', error)
     });
-  }
-
-  // Update route options
-  updateTravelMode(mode: string) {
-    if (mode === 'DRIVE' || mode === 'WALKING' || mode === 'BICYCLING' || mode === 'TRANSIT') {
-      this.routeOptions.travelMode = mode;
-      if (this.markers.length === 2) {
-        this.createRoute();
-      }
-    }
   }
 
   updateRoutingPreference(preference: string) {

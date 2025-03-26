@@ -1,63 +1,56 @@
 <div class="map-container">
     <div id="map"></div>
     <div class="controls">
-        <button (click)="clearMarkers()">Clear Route</button>
+        <div class="route-options">
+            <h3>Options</h3>
+            <div class="option-group">
+                <label>Routing Preference:</label>
+                <select #routingPref (change)="updateRoutingPreference(routingPref.value)">
+                    <option value="TRAFFIC_AWARE" [selected]="routeOptions.routingPreference === 'TRAFFIC_AWARE'">
+                        Traffic Aware</option>
+                    <option value="TRAFFIC_UNAWARE" [selected]="routeOptions.routingPreference === 'TRAFFIC_UNAWARE'">
+                        Traffic Unaware</option>
+                </select>
+            </div>
 
-        <div class="option-group">
-            <label>Travel Mode:</label>
-            <select #travelMode (change)="updateTravelMode(travelMode.value)">
-                <option value="DRIVE" [selected]="routeOptions.travelMode === 'DRIVE'">Drive</option>
-                <option value="WALKING" [selected]="routeOptions.travelMode === 'WALKING'">Walk</option>
-                <option value="BICYCLING" [selected]="routeOptions.travelMode === 'BICYCLING'">Bike</option>
-                <option value="TRANSIT" [selected]="routeOptions.travelMode === 'TRANSIT'">Transit</option>
-            </select>
-        </div>
+            <div class="option-group">
+                <label>Units:</label>
+                <select #units (change)="updateUnits(units.value)">
+                    <option value="IMPERIAL" [selected]="routeOptions.units === 'IMPERIAL'">Imperial (mi)</option>
+                    <option value="METRIC" [selected]="routeOptions.units === 'METRIC'">Metric (km)</option>
+                </select>
+            </div>
 
-        <div class="option-group">
-            <label>Routing Preference:</label>
-            <select #routingPref (change)="updateRoutingPreference(routingPref.value)">
-                <option value="TRAFFIC_AWARE" [selected]="routeOptions.routingPreference === 'TRAFFIC_AWARE'">Traffic
-                    Aware</option>
-                <option value="TRAFFIC_UNAWARE" [selected]="routeOptions.routingPreference === 'TRAFFIC_UNAWARE'">
-                    Traffic Unaware</option>
-            </select>
-        </div>
-
-        <div class="option-group">
-            <label>Units:</label>
-            <select #units (change)="updateUnits(units.value)">
-                <option value="IMPERIAL" [selected]="routeOptions.units === 'IMPERIAL'">Imperial (mi)</option>
-                <option value="METRIC" [selected]="routeOptions.units === 'METRIC'">Metric (km)</option>
-            </select>
-        </div>
-
-        <div class="option-group">
-            <label>
-                <input type="checkbox" [checked]="routeOptions.computeAlternativeRoutes"
-                    (change)="updateComputeAlternatives($any($event.target).checked)">
-                Show Alternative Routes
-            </label>
-        </div>
-
-        <div class="option-group">
-            <label>Route Modifiers:</label>
-            <div class="checkbox-group">
+            <div class="option-group">
                 <label>
-                    <input type="checkbox" [checked]="routeOptions.routeModifiers.avoidTolls"
-                        (change)="updateRouteModifiers('avoidTolls', $any($event.target).checked)">
-                    Avoid Tolls
-                </label>
-                <label>
-                    <input type="checkbox" [checked]="routeOptions.routeModifiers.avoidHighways"
-                        (change)="updateRouteModifiers('avoidHighways', $any($event.target).checked)">
-                    Avoid Highways
-                </label>
-                <label>
-                    <input type="checkbox" [checked]="routeOptions.routeModifiers.avoidFerries"
-                        (change)="updateRouteModifiers('avoidFerries', $any($event.target).checked)">
-                    Avoid Ferries
+                    <input type="checkbox" [checked]="routeOptions.computeAlternativeRoutes"
+                        (change)="updateComputeAlternatives($any($event.target).checked)">
+                    Show Alternative Routes
                 </label>
             </div>
+
+            <div class="option-group">
+                <label>Route Modifiers:</label>
+                <div class="checkbox-group">
+                    <label>
+                        <input type="checkbox" [checked]="routeOptions.routeModifiers.avoidTolls"
+                            (change)="updateRouteModifiers('avoidTolls', $any($event.target).checked)">
+                        Avoid Tolls
+                    </label>
+                    <label>
+                        <input type="checkbox" [checked]="routeOptions.routeModifiers.avoidHighways"
+                            (change)="updateRouteModifiers('avoidHighways', $any($event.target).checked)">
+                        Avoid Highways
+                    </label>
+                    <label>
+                        <input type="checkbox" [checked]="routeOptions.routeModifiers.avoidFerries"
+                            (change)="updateRouteModifiers('avoidFerries', $any($event.target).checked)">
+                        Avoid Ferries
+                    </label>
+                </div>
+            </div>
         </div>
+
+        <button (click)="clearMarkers()">Clear Route</button>
     </div>
 </div>

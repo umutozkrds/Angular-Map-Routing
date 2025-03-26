@@ -1,5 +1,4 @@
 export interface RouteOptions {
-    travelMode: 'DRIVE' | 'WALKING' | 'BICYCLING' | 'TRANSIT';
     routingPreference: 'TRAFFIC_AWARE' | 'TRAFFIC_UNAWARE';
     computeAlternativeRoutes: boolean;
     routeModifiers: {
