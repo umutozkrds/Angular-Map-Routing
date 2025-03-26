@@ -51,6 +51,20 @@
             </div>
         </div>
 
+        <div class="route-info">
+            <h3>Route Information</h3>
+            <div class="info-group">
+                <div class="info-item">
+                    <span class="label">Distance:</span>
+                    <span class="value">{{ infos[0].distanceMeters | number:'1.0-0' }} meters</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Duration:</span>
+                    <span class="value">{{ infos[0].duration }} minutes</span>
+                </div>
+            </div>
+        </div>
+
         <button (click)="clearMarkers()">Clear Route</button>
     </div>
 </div>

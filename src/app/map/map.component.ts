@@ -17,6 +17,7 @@ export class MapComponent implements OnInit {
   private customIcon: any;
   markers: any[] = [];
   private value = 1;
+  infos: any[] = [{ distanceMeters: 0, duration: 0 }];
 
   // Route options
   routeOptions: RouteOptions = {
@@ -72,11 +73,31 @@ export class MapComponent implements OnInit {
     this.routeService.getRoute(start, end, this.routeOptions).subscribe({
       next: (res: any) => {
         if (res.routes && res.routes.length > 0) {
+          this.infos = res.routes.map((route: any) => ({
+            ...route,
+            duration: this.formatDuration(this.parseDuration(route.duration)),
+            distanceMeters: route.distanceMeters
+          }));
+          console.log("infos", this.infos);
           this.drawRoutes(res.routes);
         }
       },
       error: (error) => console.error('Error fetching route:', error)
     });
+  }
+
+  private parseDuration(duration: string): number {
+    if (!duration) return 0;
+    return parseInt(duration.replace('s', ''));
+  }
+
+  formatDuration(seconds: number): string {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    if (hours > 0) {
+      return `${hours} hours ${minutes}`;
+    }
+    return `${minutes}`;
   }
 
   updateRoutingPreference(preference: string) {
@@ -186,18 +207,12 @@ export class MapComponent implements OnInit {
   }
 
   clearMarkers() {
-    // Remove all markers from the map
     this.markers.forEach(marker => {
       this.map.removeLayer(marker);
     });
-
-    // Clear the markers array
     this.markers = [];
-
-    // Clear all routes
     this.clearRoutes();
-
-    // Reset the marker counter
     this.value = 1;
+    this.infos = [{ distanceMeters: 0, duration: 0 }];
   }
 }
