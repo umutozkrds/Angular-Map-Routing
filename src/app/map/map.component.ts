@@ -2,6 +2,7 @@ import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { RouteService } from '../services/route.service';
 import * as polyline from '@mapbox/polyline';
+import { RouteOptions } from '../interfaces/route-options.interface';
 
 @Component({
   selector: 'app-map',
@@ -12,10 +13,24 @@ import * as polyline from '@mapbox/polyline';
 export class MapComponent implements OnInit {
   private map: any;
   private L: any;
-  private routeLayer: any;
+  private routeLayers: any[] = [];
   private customIcon: any;
   markers: any[] = [];
   private value = 1;
+
+  // Route options
+  routeOptions: RouteOptions = {
+    travelMode: 'DRIVE',
+    routingPreference: 'TRAFFIC_AWARE',
+    computeAlternativeRoutes: false,
+    routeModifiers: {
+      avoidTolls: false,
+      avoidHighways: false,
+      avoidFerries: false
+    },
+    languageCode: 'en-US',
+    units: 'IMPERIAL'
+  };
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -55,38 +70,100 @@ export class MapComponent implements OnInit {
   }
 
   private fetchRoute(start: string, end: string) {
-    this.routeService.getRoute(start, end).subscribe({
+    this.routeService.getRoute(start, end, this.routeOptions).subscribe({
       next: (res: any) => {
-        if (res.routes?.[0]?.polyline?.encodedPolyline) {
-          const route = res.routes[0];
-          this.drawRoute(route.polyline.encodedPolyline);
+        if (res.routes) {
+          this.drawRoutes(res.routes);
         }
       },
       error: (error) => console.error('Error fetching route:', error)
     });
   }
 
-  private drawRoute(encodedPolyline: string) {
-    if (this.routeLayer) {
-      this.map.removeLayer(this.routeLayer);
+  // Update route options
+  updateTravelMode(mode: string) {
+    if (mode === 'DRIVE' || mode === 'WALKING' || mode === 'BICYCLING' || mode === 'TRANSIT') {
+      this.routeOptions.travelMode = mode;
+      if (this.markers.length === 2) {
+        this.createRoute();
+      }
     }
+  }
 
-    try {
-      const decodedPolyline = polyline.decode(encodedPolyline);
-      const latLngs = decodedPolyline.map((coord: number[]) =>
-        this.L.latLng(coord[0], coord[1])
-      );
-
-      this.routeLayer = this.L.polyline(latLngs, {
-        color: '#6FA1EC',
-        weight: 4,
-        opacity: 0.8
-      }).addTo(this.map);
-
-      this.map.fitBounds(this.routeLayer.getBounds());
-    } catch (error) {
-      console.error('Error drawing route:', error);
+  updateRoutingPreference(preference: string) {
+    if (preference === 'TRAFFIC_AWARE' || preference === 'TRAFFIC_UNAWARE') {
+      this.routeOptions.routingPreference = preference;
+      if (this.markers.length === 2) {
+        this.createRoute();
+      }
     }
+  }
+
+  updateComputeAlternatives(compute: boolean) {
+    this.routeOptions.computeAlternativeRoutes = compute;
+    if (this.markers.length === 2) {
+      this.createRoute();
+    }
+  }
+
+  updateRouteModifiers(modifier: 'avoidTolls' | 'avoidHighways' | 'avoidFerries', value: boolean) {
+    this.routeOptions.routeModifiers[modifier] = value;
+    if (this.markers.length === 2) {
+      this.createRoute();
+    }
+  }
+
+  updateUnits(units: string) {
+    if (units === 'IMPERIAL' || units === 'METRIC') {
+      this.routeOptions.units = units;
+      if (this.markers.length === 2) {
+        this.createRoute();
+      }
+    }
+  }
+
+  private drawRoutes(routes: any[]) {
+    // Clear existing routes
+    this.clearRoutes();
+
+    // Draw each route with a different color
+    routes.forEach((route, index) => {
+      if (route.polyline?.encodedPolyline) {
+        try {
+          const decodedPolyline = polyline.decode(route.polyline.encodedPolyline);
+          const latLngs = decodedPolyline.map((coord: number[]) =>
+            this.L.latLng(coord[0], coord[1])
+          );
+
+          // Use different colors for alternative routes
+          const colors = ['#6FA1EC', '#FF6B6B', '#4CAF50', '#FFC107'];
+          const color = colors[index % colors.length];
+
+          const routeLayer = this.L.polyline(latLngs, {
+            color: color,
+            weight: 4,
+            opacity: 0.8
+          }).addTo(this.map);
+
+          this.routeLayers.push(routeLayer);
+        } catch (error) {
+          console.error('Error drawing route:', error);
+        }
+      }
+    });
+
+    // Fit bounds to show all routes
+    if (this.routeLayers.length > 0) {
+      const bounds = this.L.latLngBounds(this.routeLayers.map(layer => layer.getBounds()));
+      this.map.fitBounds(bounds);
+    }
+  }
+
+  private clearRoutes() {
+    this.routeLayers.forEach(layer => {
+      this.map.removeLayer(layer);
+    });
+    this.routeLayers = [];
   }
 
   private addMarker(location: any, label: string) {
@@ -128,11 +205,8 @@ export class MapComponent implements OnInit {
     // Clear the markers array
     this.markers = [];
 
-    // Remove the route layer if it exists
-    if (this.routeLayer) {
-      this.map.removeLayer(this.routeLayer);
-      this.routeLayer = null;
-    }
+    // Clear all routes
+    this.clearRoutes();
 
     // Reset the marker counter
     this.value = 1;

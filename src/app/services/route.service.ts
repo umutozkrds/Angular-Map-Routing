@@ -1,28 +1,50 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { catchError, tap } from 'rxjs/operators';
 import { throwError } from 'rxjs';
+import { RouteOptions } from '../interfaces/route-options.interface';
 
 @Injectable({
     providedIn: 'root'
 })
 export class RouteService {
+    private headers = new HttpHeaders({
+        'Content-Type': 'application/json',
+        'X-Goog-FieldMask': 'routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline'
+    });
+
     constructor(private http: HttpClient) { }
 
-    getRoute(start: string, end: string) {
-        const url = `${environment.apiUrl}/api/route`;
-        console.log('Making request to:', url);
+    getRoute(start: string, end: string, options: RouteOptions) {
+        const [startLat, startLng] = start.split(',').map(Number);
+        const [endLat, endLng] = end.split(',').map(Number);
 
-        return this.http.get(url, {
-            params: {
-                origin: start,
-                destination: end
-            }
-        }).pipe(
-            tap(response => console.log('Route API Response:', response)),
-            catchError(this.handleError)
-        );
+        const requestBody = {
+            origin: {
+                location: {
+                    latLng: {
+                        latitude: startLat,
+                        longitude: startLng
+                    }
+                }
+            },
+            destination: {
+                location: {
+                    latLng: {
+                        latitude: endLat,
+                        longitude: endLng
+                    }
+                }
+            },
+            ...options
+        };
+
+        return this.http.post(`${environment.apiUrl}/api/route`, requestBody, { headers: this.headers })
+            .pipe(
+                tap(response => console.log('Route API Response:', response)),
+                catchError(this.handleError)
+            );
     }
 
     private handleError(error: HttpErrorResponse) {
