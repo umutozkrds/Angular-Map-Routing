@@ -3,12 +3,15 @@ import { isPlatformBrowser } from '@angular/common';
 import { RouteService } from '../services/route.service';
 import * as polyline from '@mapbox/polyline';
 import { RouteOptions } from '../interfaces/route-options.interface';
+import { Place } from '../interfaces/places.interface';
+import { Marker } from 'leaflet';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-map',
   standalone: false,
   templateUrl: './map.component.html',
-  styleUrl: './map.component.css'
+  styleUrl: './map.component.css',
 })
 export class MapComponent implements OnInit {
   private map: any;
@@ -18,6 +21,8 @@ export class MapComponent implements OnInit {
   markers: any[] = [];
   private value = 1;
   infos: any[] = [{ distanceMeters: 0, duration: 0 }];
+  places: Place[] = [];
+  placeName: string = '';
 
   // Route options
   routeOptions: RouteOptions = {
@@ -193,6 +198,7 @@ export class MapComponent implements OnInit {
         .addTo(this.map);
 
       this.markers.push(marker);
+      console.log(marker);
       this.value++;
     }
   }
@@ -214,5 +220,51 @@ export class MapComponent implements OnInit {
     this.clearRoutes();
     this.value = 1;
     this.infos = [{ distanceMeters: 0, duration: 0 }];
+  }
+
+  addPlace(name: string, marker: any) {
+    if (this.markers.length === 1 && this.placeName !== '') {
+      const latLng = marker.getLatLng();
+      if (this.places.find(place => place.name === name)) {
+        alert("Place already exists");
+        return;
+      }
+      const place: Place = {
+        id: Date.now().toString(),
+        name: name,
+        lat: latLng.lat,
+        lng: latLng.lng,
+        marker: marker
+      };
+      this.places.push(place);
+      console.log("places", this.places);
+      this.placeName = '';
+      this.clearMarkers();
+      this.markers = [];
+      this.value = 1;
+    }
+  }
+
+  deletePlace(id: string) {
+    this.places = this.places.filter(place => place.id !== id);
+  }
+
+  selectPlace(id: string) {
+    const place = this.places.find(place => place.id === id);
+    if (place) {
+      const marker = this.L.marker([place.lat, place.lng], {
+        icon: this.customIcon
+      }).bindPopup(place.name);
+
+      this.markers.push(marker);
+      marker.addTo(this.map);
+      this.value++;
+
+      if (this.markers.length === 2) {
+        this.createRoute();
+      }
+    } else {
+      alert("Place not found");
+    }
   }
 }

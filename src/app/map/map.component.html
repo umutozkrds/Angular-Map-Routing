@@ -1,77 +1,116 @@
 <div class="map-container">
-    <div id="map"></div>
-    <div class="controls">
-        <div class="route-options">
-            <h3>Options</h3>
-            <div class="option-group">
-                <label>Routing Preference:</label>
-                <select #routingPref (change)="updateRoutingPreference(routingPref.value)">
-                    <option value="TRAFFIC_AWARE" [selected]="routeOptions.routingPreference === 'TRAFFIC_AWARE'">
-                        Traffic Aware</option>
-                    <option value="TRAFFIC_UNAWARE" [selected]="routeOptions.routingPreference === 'TRAFFIC_UNAWARE'">
-                        Traffic Unaware</option>
-                </select>
+    <div class="left-panel">
+        <div class="panel-header">
+            <h2>Favorite Places</h2>
+        </div>
+        <div class="panel-content">
+            <div class="add-place-section">
+                <div class="input-group">
+                    <input type="text" [(ngModel)]="placeName" placeholder="Enter place name" class="place-input">
+                    <button (click)="addPlace(placeName, markers[0])" class="add-button">
+                        <i class="fas fa-plus"></i> Add
+                    </button>
+                </div>
             </div>
 
-            <div class="option-group">
-                <label>Units:</label>
-                <select #units (change)="updateUnits(units.value)">
-                    <option value="IMPERIAL" [selected]="routeOptions.units === 'IMPERIAL'">Imperial (mi)</option>
-                    <option value="METRIC" [selected]="routeOptions.units === 'METRIC'">Metric (km)</option>
-                </select>
-            </div>
-
-            <div class="option-group">
-                <label>
-                    <input type="checkbox" [checked]="routeOptions.computeAlternativeRoutes"
-                        (change)="updateComputeAlternatives($any($event.target).checked)">
-                    Show Alternative Routes
-                </label>
-            </div>
-
-            <div class="option-group">
-                <label>Route Modifiers:</label>
-                <div class="checkbox-group">
-                    <label>
-                        <input type="checkbox" [checked]="routeOptions.routeModifiers.avoidTolls"
-                            (change)="updateRouteModifiers('avoidTolls', $any($event.target).checked)">
-                        Avoid Tolls
-                    </label>
-                    <label>
-                        <input type="checkbox" [checked]="routeOptions.routeModifiers.avoidHighways"
-                            (change)="updateRouteModifiers('avoidHighways', $any($event.target).checked)">
-                        Avoid Highways
-                    </label>
-                    <label>
-                        <input type="checkbox" [checked]="routeOptions.routeModifiers.avoidFerries"
-                            (change)="updateRouteModifiers('avoidFerries', $any($event.target).checked)">
-                        Avoid Ferries
-                    </label>
+            <div class="place-list">
+                <div class="place-item" *ngFor="let place of places">
+                    <div class="place-content">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span class="place-name">{{place.name}}</span>
+                    </div>
+                    <button class="delete-button" (click)="deletePlace(place.id)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    <button class="select-button" (click)="selectPlace(place.id)">
+                        <i class="fas fa-check"></i>
+                    </button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="route-info">
-            <h3>Route Information</h3>
-            <div *ngFor="let info of infos; let i = index" class="route-card">
-                <div class="route-header">
-                    <div class="route-number">Route {{i + 1}}</div>
-                    <div class="route-indicator"
-                        [style.background-color]="i === 0 ? '#6FA1EC' : i === 1 ? '#FF6B6B' : '#4CAF50'"></div>
+    <div class="map-section">
+        <div id="map"></div>
+    </div>
+
+    <div class="right-panel">
+        <div class="panel-header">
+            <h2>Route Options</h2>
+        </div>
+        <div class="panel-content">
+            <div class="route-options">
+                <div class="option-group">
+                    <label>Routing Preference:</label>
+                    <select #routingPref (change)="updateRoutingPreference(routingPref.value)">
+                        <option value="TRAFFIC_AWARE" [selected]="routeOptions.routingPreference === 'TRAFFIC_AWARE'">
+                            Traffic Aware</option>
+                        <option value="TRAFFIC_UNAWARE"
+                            [selected]="routeOptions.routingPreference === 'TRAFFIC_UNAWARE'">
+                            Traffic Unaware</option>
+                    </select>
                 </div>
-                <div class="info-group">
-                    <div class="info-item">
-                        <div class="info-label">Distance</div>
-                        <div class="info-value">{{(info.distanceMeters / 1000) | number:'1.1-1'}} km</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Duration</div>
-                        <div class="info-value">{{info.duration}}</div>
+
+                <div class="option-group">
+                    <label>Units:</label>
+                    <select #units (change)="updateUnits(units.value)">
+                        <option value="IMPERIAL" [selected]="routeOptions.units === 'IMPERIAL'">Imperial (mi)</option>
+                        <option value="METRIC" [selected]="routeOptions.units === 'METRIC'">Metric (km)</option>
+                    </select>
+                </div>
+
+                <div class="option-group">
+                    <label>
+                        <input type="checkbox" [checked]="routeOptions.computeAlternativeRoutes"
+                            (change)="updateComputeAlternatives($any($event.target).checked)">
+                        Show Alternative Routes
+                    </label>
+                </div>
+
+                <div class="option-group">
+                    <label>Route Modifiers:</label>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" [checked]="routeOptions.routeModifiers.avoidTolls"
+                                (change)="updateRouteModifiers('avoidTolls', $any($event.target).checked)">
+                            Avoid Tolls
+                        </label>
+                        <label>
+                            <input type="checkbox" [checked]="routeOptions.routeModifiers.avoidHighways"
+                                (change)="updateRouteModifiers('avoidHighways', $any($event.target).checked)">
+                            Avoid Highways
+                        </label>
+                        <label>
+                            <input type="checkbox" [checked]="routeOptions.routeModifiers.avoidFerries"
+                                (change)="updateRouteModifiers('avoidFerries', $any($event.target).checked)">
+                            Avoid Ferries
+                        </label>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <button (click)="clearMarkers()">Clear Route</button>
+            <div class="route-info">
+                <h3>Route Information</h3>
+                <div *ngFor="let info of infos; let i = index" class="route-card">
+                    <div class="route-header">
+                        <div class="route-number">Route {{i + 1}}</div>
+                        <div class="route-indicator"
+                            [style.background-color]="i === 0 ? '#6FA1EC' : i === 1 ? '#FF6B6B' : '#4CAF50'"></div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-item">
+                            <div class="info-label">Distance</div>
+                            <div class="info-value">{{(info.distanceMeters / 1000) | number:'1.1-1'}} km</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Duration</div>
+                            <div class="info-value">{{info.duration}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button (click)="clearMarkers()">Clear Route</button>
+        </div>
     </div>
 </div>
